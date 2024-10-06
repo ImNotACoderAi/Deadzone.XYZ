@@ -1097,7 +1097,7 @@ function Deadzone:CreateWindow(Settings)
 					})
 
 					ColorPicker.Window = Utilities.NewObject("Frame", {
-						Parent = nil,
+						Parent = Deadzone.gui.DeadzoneXYZ,
 						BorderSizePixel = 0,
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						BackgroundColor3 = Color3.fromRGB(18, 20, 24),
@@ -1392,7 +1392,6 @@ function Deadzone:Init()
 	end)()
 	
 	Interface.MainFrame.Parent = Deadzone.gui.DeadzoneXYZ
-	ColorPicker.Window.Parent = Deadzone.gui.DeadzoneXYZ
 end
 
 return Deadzone

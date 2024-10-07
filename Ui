@@ -581,6 +581,7 @@ function Deadzone:CreateWindow(Settings)
 						if Section.Active then
 							Section.Active = false
 							Utilities.Tween(Section.SectionButton, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
+							Section.Section.Visible = false
 							Section.Activated.Visible = false
 						end
 					end,
@@ -1191,7 +1192,7 @@ function Deadzone:CreateWindow(Settings)
 							BackgroundTransparency = 1,
 							Size = UDim2.new(1, 0, 0, 20),
 							BorderColor3 = Color3.fromRGB(0, 0, 0),
-							Text = "FOV Circle Color"
+							Text = Settings.Name
 						})
 
 						ColorPicker.Color = Utilities.NewObject("Frame", {
@@ -1219,7 +1220,8 @@ function Deadzone:CreateWindow(Settings)
 							BackgroundColor3 = Color3.fromRGB(18, 20, 24),
 							Size = UDim2.new(0, 143, 0, 120),
 							Position = UDim2.new(0, -148, 0, 0),
-							BorderColor3 = Color3.fromRGB(0, 0, 0)
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							Visible = false
 						})
 
 						ColorPicker.WindowCorner = Utilities.NewObject("UICorner", {
@@ -1235,6 +1237,13 @@ function Deadzone:CreateWindow(Settings)
 							PaddingRight = UDim.new(0, 5),
 							PaddingLeft = UDim.new(0, 5),
 							PaddingBottom = UDim.new(0, 5)
+						})
+						
+						ColorPicker.ColorPickerStroke = Utilities.NewObject("UIStroke", {
+							Parent = ColorPicker.Window,
+							Name = "ColorPickerStroke",
+							ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+							Color = Color3.fromRGB(77, 77, 107)
 						})
 
 						ColorPicker.Wheel = Utilities.NewObject("Frame", {

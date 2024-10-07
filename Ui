@@ -217,15 +217,14 @@ end
 
 _G.Running = true
 
-Deadzone = {}
-
-Deadzone.gui = {
-	DeadzoneXYZ = Utilities.NewObject("ScreenGui", {
+Deadzone = {
+	Deadzone = Utilities.NewObject("ScreenGui", {
 		Parent = Services.RunService:IsStudio() and Variables.LocalPlayer:WaitForChild("PlayerGui") or Services.CoreGui,
 		IgnoreGuiInset = true,
 		ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
 		Name = nil,
-		ResetOnSpawn = false
+		ResetOnSpawn = false,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	})
 }
 
@@ -234,63 +233,75 @@ function Deadzone:CreateWindow(Settings)
 		Name = "DEADZONE.XYZ",
 		Logo = "109685179450185"
 	}, Settings or {})
-	
-	Interface = {
+
+	local Interface = {
 		ActiveTab = nil
 	}
-	
+
 	do
-		Interface.MainFrame = Utilities.NewObject("Frame", {
-			Parent = nil,
+		Interface.Interface = Utilities.NewObject("Frame", {
+			Parent = Deadzone.Deadzone,
+			Name = "Interface",
 			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(24, 25, 29),
+			BackgroundColor3 = Color3.fromRGB(18, 20, 24),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = UDim2.new(0, 584, 0, 396),
+			Size = UDim2.new(0, 600, 0, 433),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "Interface"
+			BorderColor3 = Color3.fromRGB(0, 0, 0)
 		})
-		
+
+		Interface.Resize = Utilities.NewObject("Frame", {
+			Parent = Interface.Interface,
+			Name = "Resize",
+			BorderSizePixel = 0,
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			AnchorPoint = Vector2.new(1, 1),
+			Size = UDim2.new(0, 20, 0, 20),
+			Position = UDim2.new(1, 0, 1, 0),
+			BorderColor3 = Color3.fromRGB(0, 0, 0),
+			BackgroundTransparency = 1
+		})
+
 		Interface.InterfaceCorner = Utilities.NewObject("UICorner", {
-			Parent = Interface.MainFrame,
+			Parent = Interface.Interface,
 			Name = "InterfaceCorner",
-			CornerRadius = UDim.new(0, 4)
+			CornerRadius = UDim.new(0, 10)
 		})
 
 		Interface.InterfaceStroke = Utilities.NewObject("UIStroke", {
-			Parent = Interface.MainFrame,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Parent = Interface.Interface,
 			Name = "InterfaceStroke",
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Color = Color3.fromRGB(77, 77, 107)
 		})
 
 		Interface.NavigationLeft = Utilities.NewObject("Frame", {
-			Parent = Interface.MainFrame,
+			Parent = Interface.Interface,
+			Name = "NavigationLeft",
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(18, 20, 24),
 			Size = UDim2.new(0, 144, 1, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "NavigationLeft"
+			BorderColor3 = Color3.fromRGB(0, 0, 0)
 		})
 
 		Interface.NavigationCorner = Utilities.NewObject("UICorner", {
 			Parent = Interface.NavigationLeft,
 			Name = "NavigationCorner",
-			CornerRadius = UDim.new(0, 4)
+
 		})
 
 		Interface.Title = Utilities.NewObject("TextLabel", {
 			Parent = Interface.NavigationLeft,
+			Name = "Title",
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			TextSize = 13,
-			FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
+			FontFace = Font.new("rbxasset://fonts/families/RobotoCondensed.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 60),
 			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Text = Settings.Name,
-			Name = "Title"
+			Text = Settings.Name
 		})
 
 		Interface.TitlePadding = Utilities.NewObject("UIPadding", {
@@ -301,6 +312,7 @@ function Deadzone:CreateWindow(Settings)
 
 		Interface.Logo = Utilities.NewObject("ImageLabel", {
 			Parent = Interface.Title,
+			Name = "Logo",
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			AnchorPoint = Vector2.new(0, 0.5),
@@ -308,17 +320,16 @@ function Deadzone:CreateWindow(Settings)
 			Size = UDim2.new(0, 20, 0, 20),
 			BorderColor3 = Color3.fromRGB(0, 0, 0),
 			BackgroundTransparency = 1,
-			Name = "Logo",
 			Position = UDim2.new(0, -9, 0.5, 0)
 		})
 
 		Interface.TabButtons = Utilities.NewObject("ScrollingFrame", {
 			Parent = Interface.NavigationLeft,
+			Name = "TabButtons",
 			Active = true,
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.new(0, 0, 69420, 0),
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			Name = "TabButtons",
 			Size = UDim2.new(1, 0, 1, -60),
 			ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
 			Position = UDim2.new(0, 0, 0, 60),
@@ -326,84 +337,53 @@ function Deadzone:CreateWindow(Settings)
 			ScrollBarThickness = 0,
 			BackgroundTransparency = 1
 		})
-		
+
+		Interface.TabButtonsPadding = Utilities.NewObject("UIPadding", {
+			Parent = Interface.TabButtons,
+			Name = "TabButtonsPadding",
+
+		})
+
+		Interface.TabButtonsLayout = Utilities.NewObject("UIListLayout", {
+			Parent = Interface.TabButtons,
+			Name = "TabButtonsLayout",
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, 5),
+			SortOrder = Enum.SortOrder.LayoutOrder
+		})
+
 		Interface.NavigationTop = Utilities.NewObject("Frame", {
-			Parent = Interface.MainFrame,
+			Parent = Interface.Interface,
+			Name = "NavigationTop",
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(18, 20, 24),
 			Size = UDim2.new(1, -144, 0, 60),
 			Position = UDim2.new(0, 144, 0, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "NavigationTop"
+			BorderColor3 = Color3.fromRGB(0, 0, 0)
 		})
 
 		Interface.NavigationCorner = Utilities.NewObject("UICorner", {
 			Parent = Interface.NavigationTop,
 			Name = "NavigationCorner",
-			CornerRadius = UDim.new(0, 4)
-		})
-
-		Interface.SeperatorLeft = Utilities.NewObject("Frame", {
-			Parent = Interface.NavigationTop,
-			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-			Size = UDim2.new(0, 5, 1, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "SeperatorLeft"
-		})
-
-		Interface.SeperatorBottom = Utilities.NewObject("Frame", {
-			Parent = Interface.NavigationTop,
-			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-			AnchorPoint = Vector2.new(0, 1),
-			Size = UDim2.new(1, 0, 0, 5),
-			Position = UDim2.new(0, 0, 1, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "SeperatorBottom"
-		})
-
-		Interface.Resize = Utilities.NewObject("Frame", {
-			Parent = Interface.MainFrame,
-			BorderSizePixel = 0,
-			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			AnchorPoint = Vector2.new(1, 1),
-			Size = UDim2.new(0, 20, 0, 20),
-			Position = UDim2.new(1, 0, 1, 0),
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			Name = "Resize",
-			BackgroundTransparency = 1
-		})
-		
-		Interface.TabButtonsPadding = Utilities.NewObject("UIPadding", {
-			Parent = Interface.TabButtons,
-			Name = "TabButtonsPadding"
-		})
-
-		Interface.TabButtonsLayout = Utilities.NewObject("UIListLayout", {
-			Parent = Interface.TabButtons,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			Padding = UDim.new(0, 5),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Name = "TabButtonsLayout"
 		})
 	end
-	
+
 	function Interface:CreateTab(Settings)
 		Settings = Utilities.Settings({
 			Name = "Tab",
-			Image = "72879628326874"
+			Icon = ""
 		}, Settings or {})
-		
+
 		local Tab = {
 			Hover = false,
 			Active = false,
 			ActiveSection = nil
 		}
-		
+
 		do
-			Tab.Button = Utilities.NewObject("TextLabel", {
+			Tab.TabButton = Utilities.NewObject("TextLabel", {
 				Parent = Interface.TabButtons,
+				Name = "TabButton",
 				BorderSizePixel = 0,
 				BackgroundColor3 = Color3.fromRGB(43, 46, 57),
 				TextSize = 12,
@@ -412,39 +392,37 @@ function Deadzone:CreateWindow(Settings)
 				BackgroundTransparency = 1,
 				Size = UDim2.new(1, -2, 0, 25),
 				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				Text = Settings.Name,
-				Name = "TabButton"
+				Text = Settings.Name
 			})
 
 			Tab.TabButtonPadding = Utilities.NewObject("UIPadding", {
-				Parent = Tab.Button,
-				PaddingRight = UDim.new(0, 35),
-				Name = "TabButtonPadding"
+				Parent = Tab.TabButton,
+				Name = "TabButtonPadding",
+				PaddingRight = UDim.new(0, 35)
 			})
 
 			Tab.Image = Utilities.NewObject("ImageLabel", {
-				Parent = Tab.Button,
+				Parent = Tab.TabButton,
+				Name = "Image",
 				BorderSizePixel = 0,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				ImageColor3 = Color3.fromRGB(181, 191, 204),
 				AnchorPoint = Vector2.new(0, 0.5),
-				Image = "rbxassetid://" .. Settings.Image,
+				Image = "rbxassetid://72879628326874",
 				Size = UDim2.new(0, 12, 0, 12),
 				BorderColor3 = Color3.fromRGB(0, 0, 0),
 				BackgroundTransparency = 1,
-				Name = "Image",
 				Position = UDim2.new(0, 15, 0.5, 0)
 			})
-			
-			
-			
+
 			Tab.SectionButtons = Utilities.NewObject("ScrollingFrame", {
 				Parent = Interface.NavigationTop,
+				Name = "SectionButtons",
 				Visible = false,
+				Active = true,
 				BorderSizePixel = 0,
 				CanvasSize = UDim2.new(69420, 0, 0, 0),
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				Name = "SectionButtons",
 				Size = UDim2.new(1, -60, 1, 0),
 				ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
 				BorderColor3 = Color3.fromRGB(0, 0, 0),
@@ -452,34 +430,40 @@ function Deadzone:CreateWindow(Settings)
 				BackgroundTransparency = 1
 			})
 
-			Tab.Layout = Utilities.NewObject("UIListLayout", {
-				Parent = Tab.SectionButtons,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Name = "SectionLayout",
-				FillDirection = Enum.FillDirection.Horizontal
-			})
-			
 			Tab.SectionArea = Utilities.NewObject("Frame", {
-				Parent = Interface.MainFrame,
-				Visible = false,
+				Parent = Interface.Interface,
+				Name = "SectionArea",
 				BorderSizePixel = 0,
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				Visible = false,
+				BackgroundColor3 = Color3.fromRGB(24, 25, 29),
 				Size = UDim2.new(1, -144, 1, -60),
 				Position = UDim2.new(0, 144, 0, 60),
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				Name = "SectionArea",
-				BackgroundTransparency = 1
+				BorderColor3 = Color3.fromRGB(0, 0, 0)
+			})
+
+			Tab.SectionLayout = Utilities.NewObject("UIListLayout", {
+				Parent = Tab.SectionButtons,
+				Name = "SectionLayout",
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				FillDirection = Enum.FillDirection.Horizontal
+			})
+
+			Tab.SectionAreaCorner = Utilities.NewObject("UICorner", {
+				Parent = Tab.SectionArea,
+				Name = "SectionAreaCorner"
 			})
 		end
-		
+
 		Tab.Logic = {
 			Methods = {
 				DeactivateTab = function(self)
 					if Tab.Active then
 						Tab.Active = false
-						Utilities.Tween(Tab.Button, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
-						Utilities.Tween(Tab.Button, {BackgroundTransparency = 1}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButton, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButton, {BackgroundTransparency = 1}, 0.4, TweenTypes.Click)
 						Utilities.Tween(Tab.Image, {ImageColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButtonPadding, {PaddingRight = UDim.new(0, 35)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.Image, {Position = UDim2.new(0, 15, 0.5, 0)}, 0.4, TweenTypes.Click)
 						Tab.SectionButtons.Visible = false
 						Tab.SectionArea.Visible = false
 					end
@@ -492,9 +476,11 @@ function Deadzone:CreateWindow(Settings)
 						end
 
 						Tab.Active = true
-						Utilities.Tween(Tab.Button, {TextColor3 = Color3.fromRGB(78, 165, 213)}, 0.4, TweenTypes.Click)
-						Utilities.Tween(Tab.Button, {BackgroundTransparency = 0}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButton, {TextColor3 = Color3.fromRGB(78, 165, 213)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButton, {BackgroundTransparency = 0}, 0.4, TweenTypes.Click)
 						Utilities.Tween(Tab.Image, {ImageColor3 = Color3.fromRGB(78, 165, 213)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.TabButtonPadding, {PaddingRight = UDim.new(0, 35)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.Image, {Position = UDim2.new(0, 15, 0.5, 0)}, 0.4, TweenTypes.Click)
 						Tab.SectionButtons.Visible = true
 						Tab.SectionArea.Visible = true
 						Interface.ActiveTab = Tab
@@ -506,18 +492,16 @@ function Deadzone:CreateWindow(Settings)
 				MouseEnter = function()
 					Tab.Hover = true
 					if not Tab.Active then
-						Utilities.Tween(Tab.Button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
-						Utilities.Tween(Tab.Button, {BackgroundTransparency = 0.7}, 0.4, TweenTypes.Hover)
-						Utilities.Tween(Tab.Image, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
+						Utilities.Tween(Tab.TabButtonPadding, {PaddingRight = UDim.new(0, 25)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.Image, {Position = UDim2.new(0, 20, 0.5, 0)}, 0.4, TweenTypes.Click)
 					end
 				end,
 
 				MouseLeave = function()
 					Tab.Hover = false
 					if not Tab.Active then
-						Utilities.Tween(Tab.Button, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Hover)
-						Utilities.Tween(Tab.Button, {BackgroundTransparency = 1}, 0.4, TweenTypes.Hover)
-						Utilities.Tween(Tab.Image, {ImageColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Hover)
+						Utilities.Tween(Tab.TabButtonPadding, {PaddingRight = UDim.new(0, 35)}, 0.4, TweenTypes.Click)
+						Utilities.Tween(Tab.Image, {Position = UDim2.new(0, 15, 0.5, 0)}, 0.4, TweenTypes.Click)
 					end
 				end,
 
@@ -529,8 +513,8 @@ function Deadzone:CreateWindow(Settings)
 			},
 
 			Setup = function()
-				Tab.Button.MouseEnter:Connect(Tab.Logic.Events.MouseEnter)
-				Tab.Button.MouseLeave:Connect(Tab.Logic.Events.MouseLeave)
+				Tab.TabButton.MouseEnter:Connect(Tab.Logic.Events.MouseEnter)
+				Tab.TabButton.MouseLeave:Connect(Tab.Logic.Events.MouseLeave)
 				Services.UserInputService.InputBegan:Connect(Tab.Logic.Events.InputBegan)
 
 				if Interface.ActiveTab == nil then
@@ -540,114 +524,64 @@ function Deadzone:CreateWindow(Settings)
 		}
 
 		Tab.Logic.Setup()
-		
+
 		function Tab:CreateSection(Settings)
 			Settings = Utilities.Settings({
 				Name = "SECTION"
 			}, Settings or {})
-			
-			local Section = {
-				Active = false,
-				Hover = false
-			}
-			
+
+			local Section = {}
+
 			do
-				Section.Button = Utilities.NewObject("TextLabel", {
+				Section.SectionButton = Utilities.NewObject("TextLabel", {
 					Parent = Tab.SectionButtons,
+					Name = "SectionButton",
 					BorderSizePixel = 0,
 					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					TextSize = 14,
-					FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+					FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
 					TextColor3 = Color3.fromRGB(181, 191, 204),
 					BackgroundTransparency = 1,
 					Size = UDim2.new(0, 120, 1, 0),
 					BorderColor3 = Color3.fromRGB(0, 0, 0),
-					Text = Settings.Name,
-					Name = "SectionButton"
+					Text = Settings.Name
 				})
 
 				Section.Activated = Utilities.NewObject("Frame", {
-					Parent = Section.Button,
+					Parent = Section.SectionButton,
+					Name = "Activated",
 					BorderSizePixel = 0,
 					BackgroundColor3 = Color3.fromRGB(78, 165, 213),
 					AnchorPoint = Vector2.new(0.5, 1),
-					Size = UDim2.new(0, 80, 0, 0),
+					Size = UDim2.new(0, 80, 0, 2),
 					Position = UDim2.new(0.5, 0, 1, 0),
 					BorderColor3 = Color3.fromRGB(0, 0, 0),
-					Name = "Activated",
-				})
-				
-				Section.Section = Utilities.NewObject("Frame", {
-					Parent = Tab.SectionArea,
-					Visible = false,
-					BorderSizePixel = 0,
-					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-					Selectable = true,
-					ClipsDescendants = true,
-					Size = UDim2.new(1, 0, 1, 0),
-					BorderColor3 = Color3.fromRGB(0, 0, 0),
-					Name = "Section",
-					BackgroundTransparency = 1,
-					SelectionGroup = true
-				})
-				
-				Section.Elements = Utilities.NewObject("Frame", {
-					Parent = Section.Section,
-					Visible = false,
-					BorderSizePixel = 0,
-					BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-					Name = "Elements",
-					Size = UDim2.new(1, -30, 1, -30),
-					Position = UDim2.new(0, 15, 0, 15),
-					BorderColor3 = Color3.fromRGB(0, 0, 0),
+					Visible = false
 				})
 
-				Section.Holder = Utilities.NewObject("ScrollingFrame", {
-					Parent = Section.Elements,
+				Section.Section = Utilities.NewObject("ScrollingFrame", {
+					Parent = Tab.SectionArea,
+					Name = "Section",
+					Active = true,
+					Visible = false,
 					BorderSizePixel = 0,
 					CanvasSize = UDim2.new(0, 0, 69420, 0),
-					BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-					Name = "Elements",
-					Selectable = false,
-					BackgroundTransparency = 1,
-					ClipsDescendants = false,
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 					Size = UDim2.new(1, 0, 1, 0),
+					ScrollBarImageColor3 = Color3.fromRGB(81, 85, 85),
 					BorderColor3 = Color3.fromRGB(0, 0, 0),
-					ScrollBarThickness = 0
-				})
-
-				Section.HolderPadding = Utilities.NewObject("UIPadding", {
-					Parent = Section.Holder,
-					PaddingTop = UDim.new(0, 10),
-					PaddingRight = UDim.new(0, 10),
-					Name = "ElementsPadding",
-					PaddingLeft = UDim.new(0, 10),
-					PaddingBottom = UDim.new(0, 10)
-				})
-
-				Section.HolderLayout = Utilities.NewObject("UIListLayout", {
-					Parent = Section.Holder,
-					Padding = UDim.new(0, 5),
-					SortOrder = Enum.SortOrder.LayoutOrder,
-					Name = "ElementsLayout"
-				})
-
-				Section.ElementsCorner = Utilities.NewObject("UICorner", {
-					Parent = Section.Elements,
-					Name = "InterfaceCorner",
-					CornerRadius = UDim.new(0, 3)
+					ScrollBarThickness = 2,
+					BackgroundTransparency = 1
 				})
 			end
-			
+
 			Section.Logic = {
 				Methods = {
 					DeactivateSection = function(self)
 						if Section.Active then
 							Section.Active = false
-							Utilities.Tween(Section.Button, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
-							Utilities.Tween(Section.Activated, {Size = UDim2.new(0, 80, 0, 0)}, 0.4, TweenTypes.Click)
-							Section.Section.Visible = false
-							Section.Elements.Visible = false
+							Utilities.Tween(Section.SectionButton, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Click)
+							Section.Activated.Visible = false
 						end
 					end,
 
@@ -658,27 +592,26 @@ function Deadzone:CreateWindow(Settings)
 							end
 
 							Section.Active = true
-							Utilities.Tween(Section.Button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Click)
-							Utilities.Tween(Section.Activated, {Size = UDim2.new(0, 80, 0, 2)}, 0.4, TweenTypes.Click)
+							Utilities.Tween(Section.SectionButton, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Click)
 							Section.Section.Visible = true
-							Section.Elements.Visible = true
+							Section.Activated.Visible = true
 							Tab.ActiveSection = Section
 						end
 					end
 				},
-				
+
 				Events = {
 					MouseEnter = function()
 						Section.Hover = true
 						if not Section.Active then
-							Utilities.Tween(Section.Button, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
+							Utilities.Tween(Section.SectionButton, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
 						end
 					end,
 
 					MouseLeave = function()
 						Section.Hover = false
 						if not Section.Active then
-							Utilities.Tween(Section.Button, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Hover)
+							Utilities.Tween(Section.SectionButton, {TextColor3 = Color3.fromRGB(181, 191, 204)}, 0.4, TweenTypes.Hover)
 						end
 					end,
 
@@ -690,8 +623,8 @@ function Deadzone:CreateWindow(Settings)
 				},
 
 				Setup = function()
-					Section.Button.MouseEnter:Connect(Section.Logic.Events.MouseEnter)
-					Section.Button.MouseLeave:Connect(Section.Logic.Events.MouseLeave)
+					Section.SectionButton.MouseEnter:Connect(Section.Logic.Events.MouseEnter)
+					Section.SectionButton.MouseLeave:Connect(Section.Logic.Events.MouseLeave)
 					Services.UserInputService.InputBegan:Connect(Section.Logic.Events.InputBegan)
 
 					if Tab.ActiveSection == nil then
@@ -699,699 +632,917 @@ function Deadzone:CreateWindow(Settings)
 					end
 				end
 			}
-			
+
 			Section.Logic.Setup()
-			
-			function Section:AddToggle(Settings)
+
+			function Section:CreateGroup(Settings)
 				Settings = Utilities.Settings({
-					Name = "Toggle",
-					Default = false,
-					Callback = function(v)
-						
-					end
+					Name = "Group"
 				}, Settings or {})
-				
-				local Toggle = {
-					Hover = false,
-					MouseDown = false,
-					State = Settings.Default
+
+				Section.GroupIndex = (Section.GroupIndex or 0) + 1
+
+				local index = Section.GroupIndex
+
+				local Group = {
+					Width = 197,
+					SpacingX = 20,
+					SpacingY = 20,
+					MaxColumns = 2
 				}
-				
+
 				do
-					Toggle.Label = Utilities.NewObject("TextLabel", {
-						Parent = Section.Holder,
+					Group.Group = Utilities.NewObject("Frame", {
+						Parent = Section.Section,
+						Name = "Group",
 						BorderSizePixel = 0,
-						TextXAlignment = Enum.TextXAlignment.Left,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						TextSize = 14,
-						FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-						TextColor3 = Color3.fromRGB(255, 255, 255),
-						BackgroundTransparency = 1,
-						Size = UDim2.new(1, 0, 0, 20),
+						BackgroundColor3 = Color3.fromRGB(18, 20, 24),
+						Size = UDim2.new(0, 0, 0, 0),
+						Position = UDim2.new(0, 0, 0, 0),
 						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Text = Settings.Name,
-						Name = "Toggle"
+						SelectionGroup = true,
+						ClipsDescendants = true
 					})
 
-					Toggle.Padding = Utilities.NewObject("UIPadding", {
-						Parent = Toggle.Label,
-						Name = "TogglePadding",
-						PaddingLeft = UDim.new(0, 22)
-					})
-
-					Toggle.MarkFrame = Utilities.NewObject("Frame", {
-						Parent = Toggle.Label,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(27, 31, 36),
-						AnchorPoint = Vector2.new(0, 0.5),
-						Size = UDim2.new(0, 17, 0, 17),
-						Position = UDim2.new(0, -22, 0.5, 0),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Name = "MarkFrame"
-					})
-
-					Toggle.MarkFrameCorner = Utilities.NewObject("UICorner", {
-						Parent = Toggle.MarkFrame,
-						Name = "MarkFrameCorner",
+					Group.GroupCorner = Utilities.NewObject("UICorner", {
+						Parent = Group.Group,
+						Name = "GroupCorner",
 						CornerRadius = UDim.new(0, 6)
 					})
 
-					Toggle.Mark = Utilities.NewObject("ImageLabel", {
-						Parent = Toggle.MarkFrame,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						ImageTransparency = 1,
-						Image = "rbxassetid://123524915704412",
-						Size = UDim2.new(1, 0, 1, 0),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						BackgroundTransparency = 1,
-						Name = "Mark"
-					})
-				end
-				
-				Toggle.Logic = {
-					Methods = {
-						ToggleState = function(self, Bool)
-							if Bool == nil then
-								Toggle.State = not Toggle.State
-							else
-								Toggle.State = Bool
-							end
-
-							if Toggle.State then
-								Utilities.Tween(Toggle.MarkFrame, {BackgroundColor3 = Color3.fromRGB(78, 165, 213)}, 0.4, TweenTypes.Click)
-								Utilities.Tween(Toggle.Mark, {ImageTransparency = 0}, 0.4, TweenTypes.Click)
-							else
-								Utilities.Tween(Toggle.MarkFrame, {BackgroundColor3 = Color3.fromRGB(27, 31, 36)}, 0.4, TweenTypes.Click)
-								Utilities.Tween(Toggle.Mark, {ImageTransparency = 1}, 0.4, TweenTypes.Click)
-							end
-
-							Settings.Callback(Toggle.State)	
-						end,
-
-						InitializeState = function(self)
-							self:ToggleState(Settings.Default)
-						end
-					},
-					
-					Events = {
-						MouseEnter = function()
-							Toggle.Hover = true
-						end,
-
-						MouseLeave = function()
-							Toggle.Hover = false
-						end,
-
-						InputBegan = function(Input)
-							if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) and Toggle.Hover then
-								Toggle.MouseDown = true
-								Toggle.Logic.Methods.ToggleState()
-							end
-						end,
-
-						InputEnded = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-								Toggle.MouseDown = false
-							end
-						end
-					},
-					
-					Setup = function()
-						Toggle.Label.MouseEnter:Connect(Toggle.Logic.Events.MouseEnter)
-						Toggle.Label.MouseLeave:Connect(Toggle.Logic.Events.MouseLeave)
-						Services.UserInputService.InputBegan:Connect(Toggle.Logic.Events.InputBegan)
-						Services.UserInputService.InputEnded:Connect(Toggle.Logic.Events.InputEnded)
-
-						Toggle.Logic.Methods:InitializeState()
-					end
-				}			
-				
-				Toggle.Logic.Setup()
-				
-				return Toggle
-			end
-			
-			function Section:AddSlider(Settings)
-				Settings = Utilities.Settings({
-					Name = "Slider",
-					Min = 0,
-					Max = 20,
-					Default = 5,
-					Increment = 1,
-					Callback = function(v)
-						print(v)
-					end
-				}, Settings or {})
-
-				local Slider = {
-					MouseDown = false,
-					Hover = false,
-					Connection = nil
-				}
-
-				do
-					Slider.Label = Utilities.NewObject("TextLabel", {
-						Parent = Section.Holder,
-						BorderSizePixel = 0,
-						TextXAlignment = Enum.TextXAlignment.Left,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						TextSize = 14,
-						FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-						TextColor3 = Color3.fromRGB(255, 255, 255),
-						BackgroundTransparency = 1,
-						Size = UDim2.new(1, 0, 0, 40),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Text = Settings.Name,
-						Name = "Slider"
-					})
-					
-					Slider.ValueText = Utilities.NewObject("TextLabel", {
-						Parent = Slider.Label,
-						BorderSizePixel = 0,
-						TextXAlignment = Enum.TextXAlignment.Right,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						AnchorPoint = Vector2.new(1, 0.5),
-						TextSize = 14,
-						FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-						TextColor3 = Color3.fromRGB(255, 255, 255),
-						BackgroundTransparency = 1,
-						Size = UDim2.new(1, 0, 0, 14),
-						Position = UDim2.new(1, 0, 0.5, 0),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Text = "0",
-						Name = "Value"
+					Group.GroupPadding = Utilities.NewObject("UIPadding", {
+						Parent = Group.Group,
+						Name = "GroupPadding",
+						PaddingTop = UDim.new(0, 30)
 					})
 
-					Slider.Padding = Utilities.NewObject("UIPadding", {
-						Parent = Slider.Label,
-						Name = "SliderPadding",
-						PaddingBottom = UDim.new(0, 20)
-					})
-
-					Slider.Background = Utilities.NewObject("Frame", {
-						Parent = Slider.Label,
+					Group.Seperator = Utilities.NewObject("Frame", {
+						Parent = Group.Group,
+						Name = "Seperator",
 						BorderSizePixel = 0,
 						BackgroundColor3 = Color3.fromRGB(27, 31, 36),
-						Size = UDim2.new(1, 0, 0, 7),
-						Position = UDim2.new(0, 0, 0, 27),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Name = "Background"
+						AnchorPoint = Vector2.new(0.5, 0),
+						Size = UDim2.new(1, -20, 0, 1),
+						Position = UDim2.new(0.5, 0, 0, 0),
+						BorderColor3 = Color3.fromRGB(0, 0, 0)
 					})
 
-					Slider.BackgroundCorner = Utilities.NewObject("UICorner", {
-						Parent = Slider.Background,
-						Name = "Round",
-						CornerRadius = UDim.new(0, 200)
-					})
-
-					Slider.BackgroundFilled = Utilities.NewObject("Frame", {
-						Parent = Slider.Background,
+					Group.Name = Utilities.NewObject("TextLabel", {
+						Parent = Group.Group,
+						Name = "TextLabel",
 						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(78, 165, 213),
-						Size = UDim2.new(0.5, 0, 1, 0),
+						TextXAlignment = Enum.TextXAlignment.Left,
+						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+						TextSize = 14,
+						FontFace = Font.new("[[rbxasset://fonts/families/Roboto.json]]", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+						TextColor3 = Color3.fromRGB(49, 51, 53),
+						BackgroundTransparency = 1,
+						Size = UDim2.new(1, -30, 0, 15),
 						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Name = "Filled"
+						Text = Settings.Name,
+						Position = UDim2.new(0, 15, 0, -20)
 					})
 
-					Slider.BackgroundFilledCorner = Utilities.NewObject("UICorner", {
-						Parent = Slider.BackgroundFilled,
-						Name = "Round",
-						CornerRadius = UDim.new(0, 200)
-					})
-
-					Slider.BackgroundFilledDraggable = Utilities.NewObject("Frame", {
-						Parent = Slider.BackgroundFilled,
+					Group.Items = Utilities.NewObject("Frame", {
+						Parent = Group.Group,
+						Name = "Items",
+						Active = true,
 						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(78, 165, 213),
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Size = UDim2.new(0, 11, 0, 11),
-						Position = UDim2.new(1, 0, 0.5, 0),
+						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+						Selectable = true,
+						ClipsDescendants = true,
+						Size = UDim2.new(1, 0, 1, -10),
 						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Name = "Draggable"
+						BackgroundTransparency = 1,
+						SelectionGroup = true
 					})
 
-					Slider.BackgroundFilledDraggableCorner = Utilities.NewObject("UICorner", {
-						Parent = Slider.BackgroundFilledDraggable,
-						Name = "Round",
-						CornerRadius = UDim.new(0, 200)
+					Group.ItemsCorner = Utilities.NewObject("UIListLayout", {
+						Parent = Group.Items,
+						Name = "ItemsCorner",
+						Padding = UDim.new(0, 5),
+						SortOrder = Enum.SortOrder.LayoutOrder
 					})
 
-					Slider.BackgroundFilledDraggableStroke = Utilities.NewObject("UIStroke", {
-						Parent = Slider.BackgroundFilledDraggable,
-						Thickness = 1.5,
-						Color = Color3.fromRGB(18, 20, 24)
-					})
-
-					Slider.BackgroundFilledDraggableInner = Utilities.NewObject("Frame", {
-						Parent = Slider.BackgroundFilledDraggable,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Size = UDim2.new(0, 5, 0, 5),
-						Position = UDim2.new(0.5, 0, 0.5, 0),
-						BorderColor3 = Color3.fromRGB(0, 0, 0),
-						Name = "Inner"
+					Group.ItemsPadding = Utilities.NewObject("UIPadding", {
+						Parent = Group.Items,
+						Name = "ItemsPadding",
+						PaddingTop = UDim.new(0, 10),
+						PaddingRight = UDim.new(0, 15),
+						PaddingLeft = UDim.new(0, 15),
+						PaddingBottom = UDim.new(0, 10)
 					})
 				end
-				
-				Slider.Logic = {
+
+				Group.Logic = {
 					Methods = {
-						SetValue = function(self, v)
-							if v == nil then
-								local percentage = math.clamp((Variables.Mouse.X - Slider.Background.AbsolutePosition.X) / Slider.Background.AbsoluteSize.X, 0, 1)
-								local value = ((Settings.Max - Settings.Min) * percentage) + Settings.Min
-								value = math.round(value / Settings.Increment) * Settings.Increment
+						UpdatePosition = function()
+							local column = (index - 1) % Group.MaxColumns
+							local row = math.floor((index - 1) / Group.MaxColumns)
 
-								Slider.ValueText.Text = string.format("%.1f", value)
-								Utilities.Tween(Slider.BackgroundFilled, {Size = UDim2.fromScale(percentage, 1)}, 0.4, TweenTypes.Drag)
-							else
-								local clampedValue = math.clamp(v, Settings.Min, Settings.Max)
-								clampedValue = math.round(clampedValue / Settings.Increment) * Settings.Increment
-								local percentage = (clampedValue - Settings.Min) / (Settings.Max - Settings.Min)
+							local posX = Group.SpacingX + (Group.Width + Group.SpacingX) * column
+							local posY = Group.SpacingY
 
-								Slider.ValueText.Text = string.format("%.1f", clampedValue)
-								Utilities.Tween(Slider.BackgroundFilled, {Size = UDim2.fromScale(percentage, 1)}, 0.4, TweenTypes.Drag)
-							end
-
-							Settings.Callback(Slider.Logic.Methods:GetValue())
-						end,
-
-						GetValue = function(self)
-							return tonumber(Slider.Label.Text)
-						end,
-
-						Initialize = function(self)
-							self:SetValue(Settings.Default)
-						end
-					},
-
-					Events = {
-						MouseEnter = function()
-							Slider.Hover = true
-						end,
-
-						MouseLeave = function()
-							Slider.Hover = false
-						end,
-
-						InputBegan = function(Input)
-							if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) and Slider.Hover then
-								Variables.Stop = true
-								Slider.MouseDown = true
-								Utilities.Tween(Slider.Label, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
-
-								if not Slider.Connection then
-									Slider.Connection = Services.RunService.RenderStepped:Connect(function()
-										Slider.Logic.Methods:SetValue()
-									end)
+							for i = 1, index - 1 do
+								local prevGroupColumn = (i - 1) % Group.MaxColumns
+								if prevGroupColumn == column then
+									local prevGroup = Section.Section:FindFirstChild("Group" .. i)
+									if prevGroup then
+										posY = posY + prevGroup.Size.Y.Offset + Group.SpacingY
+									end
 								end
 							end
+
+							Group.Group.Position = UDim2.new(0, posX, 0, posY)
+							Group.Group.Name = "Group" .. index
 						end,
 
-						InputEnded = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-								Variables.Stop = false
-								Slider.MouseDown = false
-
-								if Slider.Connection then 
-									Slider.Connection:Disconnect() 
+						UpdateSize = function()
+							local Height = 45
+							
+							for _, v in pairs(Group.Items:GetChildren()) do
+								if v.Name == "Toggle" then
+									Height = Height + 25
+								elseif v.Name == "Slider" then
+									Height = Height + 45
+								elseif v.Name == "ColorPicker" then
+									Height = Height + 25
 								end
-								Slider.Connection = nil
+							end
+							
+							Group.Group.Size = UDim2.new(0, Group.Width, 0, Height)
+							
+
+							local thisColumn = (index - 1) % Group.MaxColumns
+
+							local columnGroups = {}
+							for i = 1, Group.MaxColumns do
+								columnGroups[i] = {}
+							end
+
+							for i = 1, Section.GroupIndex do
+								local group = Section.Section:FindFirstChild("Group" .. i)
+								if group then
+									local groupColumn = ((i - 1) % Group.MaxColumns) + 1
+									table.insert(columnGroups[groupColumn], {index = i, group = group})
+								end
+							end
+
+							for column, groups in ipairs(columnGroups) do
+								local currentY = Group.SpacingY
+								for _, groupData in ipairs(groups) do
+									local posX = Group.SpacingX + (Group.Width + Group.SpacingX) * (column - 1)
+									groupData.group.Position = UDim2.new(0, posX, 0, currentY)
+									currentY = currentY + groupData.group.Size.Y.Offset + Group.SpacingY
+								end
 							end
 						end
 					},
 
 					Setup = function()
-						Slider.Label.MouseEnter:Connect(Slider.Logic.Events.MouseEnter)
-						Slider.Label.MouseLeave:Connect(Slider.Logic.Events.MouseLeave)
-						Services.UserInputService.InputBegan:Connect(Slider.Logic.Events.InputBegan)
-						Services.UserInputService.InputEnded:Connect(Slider.Logic.Events.InputEnded)
-
-						Slider.Logic.Methods:Initialize()
+						Group.Logic.Methods.UpdatePosition()
+						Group.Logic.Methods.UpdateSize()
 					end
 				}
 
-				Slider.Logic.Setup()
-				
-				function Slider:GetValue()
-					Slider.Logic.Methods.GetValue()
-				end
-				
-				function Slider:SetValue(value)
-					Slider.Logic.Methods.SetValue(self, value)
-				end
-				
-				return Slider
-			end
-			
-			function Section:AddColorPicker(Settings)
-				Settings = Utilities.Settings({
-					Name = "FOV Circle Color",
-					Default = Color3.fromRGB(255, 0, 0),
-					Callback = function(v)
-						print(v)
-					end    
-				}, Settings or {})
+				function Group:AddToggle(Settings)
+					Settings = Utilities.Settings({
+						Name = "Toggle",
+						Default = false,
+						Callback = function(v)
 
-				ColorPicker = {
-					IsPickingColor = false,
-					IsWindowOpen = false,
-					CurrentColor = Settings.Default,
-					CurrentValue = 1,
-					
-					HoverStates = {
-						IsHoveringColorWheel = false,
-						IsHoveringDarknessSlider = false,
-						IsHoveringPreview = false
+						end
+					}, Settings or {})
+
+					local Toggle = {
+						Hover = false,
+						MouseDown = false,
+						State = Settings.Default
 					}
-				}
 
-				do
-					ColorPicker.Label = Utilities.NewObject("TextLabel", {
-						Parent = Section.Holder,
-						BorderSizePixel = 0,
-						TextXAlignment = Enum.TextXAlignment.Left,
-						BackgroundTransparency = 1,
-						TextSize = 14,
-						FontFace = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-						TextColor3 = Color3.fromRGB(255, 255, 255),
-						Size = UDim2.new(1, 0, 0, 20),
-						Text = Settings.Name,
-						Name = [[ColorPickerLabel]]
-					})
-
-					ColorPicker.Preview = Utilities.NewObject("Frame", {
-						Parent = ColorPicker.Label,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Settings.Default,
-						AnchorPoint = Vector2.new(1, 0),
-						Size = UDim2.new(0, 20, 0, 20),
-						Position = UDim2.new(1, 0, 0, 0),
-						Name = [[ColorPreview]]
-					})
-
-					Utilities.NewObject("UICorner", {
-						Parent = ColorPicker.Preview,
-						CornerRadius = UDim.new(0, 4)
-					})
-
-					ColorPicker.Window = Utilities.NewObject("Frame", {
-						Parent = Deadzone.gui.DeadzoneXYZ,
-						BorderSizePixel = 0,
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						BackgroundColor3 = Color3.fromRGB(18, 20, 24),
-						Size = UDim2.new(0, 120, 0, 140),
-						Position = UDim2.new(0, 0, 0, 0),
-						Visible = false,
-						Name = "ColorPickerWindow"
-					})
-
-					Utilities.NewObject("UICorner", {
-						Parent = ColorPicker.Window,
-						CornerRadius = UDim.new(0, 4)
-					})
-
-					ColorPicker.ColorWheel = Utilities.NewObject("ImageLabel", {
-						Parent = ColorPicker.Window,
-						BackgroundTransparency = 1,
-						Image = "rbxassetid://72583388086348",
-						Size = UDim2.new(0, 88, 0, 88),
-						Position = UDim2.new(0.5, 0, 0, 10),
-						AnchorPoint = Vector2.new(0.5, 0),
-						Name = "ColorWheel",
-					})
-
-					ColorPicker.Select = Utilities.NewObject("Frame", {
-						Parent = ColorPicker.ColorWheel,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Size = UDim2.new(0, 4, 0, 4),
-						Position = UDim2.new(0.5, 0, 0.5, 0),
-						Name = "Select"
-					})
-
-					Utilities.NewObject("UICorner", {
-						Parent = ColorPicker.Select,
-						CornerRadius = UDim.new(1, 0)
-					})
-
-					ColorPicker.Darkness = Utilities.NewObject("Frame", {
-						Parent = ColorPicker.Window,
-						BorderSizePixel = 0,
-						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						AnchorPoint = Vector2.new(0.5, 1),
-						Size = UDim2.new(1, -20, 0, 20),
-						Position = UDim2.new(0.5, 0, 1, -10),
-						Name = "Darkness"
-					})
-
-					Utilities.NewObject("UIGradient", {
-						Parent = ColorPicker.Darkness,
-						Color = ColorSequence.new({
-							ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-							ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+					do
+						Toggle.Toggle = Utilities.NewObject("TextLabel", {
+							Parent = Group.Items,
+							Name = "Toggle",
+							BorderSizePixel = 0,
+							TextXAlignment = Enum.TextXAlignment.Left,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							TextSize = 14,
+							FontFace = Font.new("[[rbxasset://fonts/families/Roboto.json]]", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							BackgroundTransparency = 1,
+							Size = UDim2.new(1, 0, 0, 20),
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							Text = Settings.Name
 						})
-					})
 
-					Utilities.NewObject("UICorner", {
-						Parent = ColorPicker.Darkness,
-						CornerRadius = UDim.new(0, 4)
-					})
-				end
+						Toggle.TogglePadding = Utilities.NewObject("UIPadding", {
+							Parent = Toggle.Toggle,
+							Name = "TogglePadding",
+							PaddingLeft = UDim.new(0, 22)
+						})
 
-				ColorPicker.Logic = {
-					Methods = {
-						toggleWindow = function()
-							ColorPicker.IsWindowOpen = not ColorPicker.IsWindowOpen
-							ColorPicker.Window.Visible = ColorPicker.IsWindowOpen
-						end,
+						Toggle.MarkFrame = Utilities.NewObject("Frame", {
+							Parent = Toggle.Toggle,
+							Name = "MarkFrame",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(78, 165, 213),
+							AnchorPoint = Vector2.new(0, 0.5),
+							Size = UDim2.new(0, 17, 0, 17),
+							Position = UDim2.new(0, -22, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
 
-						getColorAtPosition = function(mousePosition)
-							local wheel = ColorPicker.ColorWheel
-							local wheelAbsPos = wheel.AbsolutePosition
-							local wheelAbsSize = wheel.AbsoluteSize
-							local wheelRadius = (wheelAbsSize.X / 2)
-							local wheelCenter = wheelAbsPos + wheelAbsSize / 2
+						Toggle.MarkFrameCorner = Utilities.NewObject("UICorner", {
+							Parent = Toggle.MarkFrame,
+							Name = "MarkFrameCorner",
+							CornerRadius = UDim.new(0, 6)
+						})
 
-							local delta = mousePosition - wheelCenter
-							local radius = delta.Magnitude
-							local normalizedRadius = math.min(radius / wheelRadius, 1)
+						Toggle.Mark = Utilities.NewObject("ImageLabel", {
+							Parent = Toggle.MarkFrame,
+							Name = "Mark",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							Image = "rbxassetid://123524915704412",
+							Size = UDim2.new(1, 0, 1, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							BackgroundTransparency = 1
+						})
+					end
 
-							local angle = math.atan2(delta.Y, delta.X)
-							local hue = ((angle + math.pi) / (2 * math.pi)) % 1
-							local saturation = normalizedRadius
+					Toggle.Logic = {
+						Methods = {
+							ToggleState = function(self, Bool)
+								if Bool == nil then
+									Toggle.State = not Toggle.State
+								else
+									Toggle.State = Bool
+								end
 
-							return hue, saturation
-						end,
+								if Toggle.State then
+									Utilities.Tween(Toggle.MarkFrame, {BackgroundColor3 = Color3.fromRGB(78, 165, 213)}, 0.4, TweenTypes.Click)
+									Utilities.Tween(Toggle.Mark, {ImageTransparency = 0}, 0.4, TweenTypes.Click)
+								else
+									Utilities.Tween(Toggle.MarkFrame, {BackgroundColor3 = Color3.fromRGB(27, 31, 36)}, 0.4, TweenTypes.Click)
+									Utilities.Tween(Toggle.Mark, {ImageTransparency = 1}, 0.4, TweenTypes.Click)
+								end
 
-						updateVisuals = function(mousePosition, isWheel)
-							if isWheel then
-								local h, s = ColorPicker.Logic.Methods.getColorAtPosition(mousePosition)
-								local v = ColorPicker.CurrentValue
+								Settings.Callback(Toggle.State)	
+							end,
 
-								local wheel = ColorPicker.ColorWheel
-								local relativePos = mousePosition - wheel.AbsolutePosition
-								local wheelSize = wheel.AbsoluteSize
+							InitializeState = function(self)
+								self:ToggleState(Settings.Default)
+							end
+						},
 
-								local centerX, centerY = wheelSize.X / 2, wheelSize.Y / 2
-								local angle = math.atan2(relativePos.Y - centerY, relativePos.X - centerX)
-								local radius = math.min((relativePos - Vector2.new(centerX, centerY)).Magnitude, centerX)
+						Events = {
+							MouseEnter = function()
+								Toggle.Hover = true
+							end,
 
-								local clampedX = centerX + radius * math.cos(angle)
-								local clampedY = centerY + radius * math.sin(angle)
+							MouseLeave = function()
+								Toggle.Hover = false
+							end,
 
-								ColorPicker.Select.Position = UDim2.new(0, clampedX, 0, clampedY)
+							InputBegan = function(Input)
+								if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) and Toggle.Hover then
+									Toggle.MouseDown = true
+									Toggle.Logic.Methods.ToggleState()
+								end
+							end,
 
-								local newColor = Color3.fromHSV(h, s, v)
-								ColorPicker.Preview.BackgroundColor3 = newColor
-								ColorPicker.CurrentColor = newColor
-
-								if Settings.Callback then
-									Settings.Callback(newColor)
+							InputEnded = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+									Toggle.MouseDown = false
 								end
 							end
-						end,
+						},
 
-						updateDarkness = function(mousePosition)
-							local darkness = ColorPicker.Darkness
-							local darknessAbsPos = darkness.AbsolutePosition
-							local darknessAbsSize = darkness.AbsoluteSize
+						Setup = function()
+							Toggle.Toggle.MouseEnter:Connect(Toggle.Logic.Events.MouseEnter)
+							Toggle.Toggle.MouseLeave:Connect(Toggle.Logic.Events.MouseLeave)
+							Services.UserInputService.InputBegan:Connect(Toggle.Logic.Events.InputBegan)
+							Services.UserInputService.InputEnded:Connect(Toggle.Logic.Events.InputEnded)
 
-							local value = math.clamp((mousePosition.X - darknessAbsPos.X) / darknessAbsSize.X, 0, 1)
-							ColorPicker.CurrentValue = 1 - value
+							Toggle.Logic.Methods:InitializeState()
+							
+							Group.Logic.Methods.UpdateSize()
+						end
+					}		
+					
+					function Toggle:Set(State)
+						Toggle.Logic.Methods.ToggleState(State)
+					end
 
-							local h, s = ColorPicker.Logic.Methods.getColorAtPosition(ColorPicker.Select.AbsolutePosition + ColorPicker.Select.AbsoluteSize / 2)
-							local newColor = Color3.fromHSV(h, s, ColorPicker.CurrentValue)
+					Toggle.Logic.Setup()
 
-							ColorPicker.Preview.BackgroundColor3 = newColor
-							ColorPicker.CurrentColor = newColor
+					return Toggle
+				end
 
-							if Settings.Callback then
-								Settings.Callback(newColor)
+				function Group:AddSlider(Settings)
+					Settings = Utilities.Settings({
+						Name = "Slider",
+						Min = 0,
+						Max = 20,
+						Default = 5,
+						Increment = 1,
+						Callback = function(v)
+							print(v)
+						end
+					}, Settings or {})
+					
+					local Slider = {
+						MouseDown = false,
+						Hover = false,
+						Connection = nil
+					}
+					
+					do
+						Slider.Slider = Utilities.NewObject("TextLabel", {
+							Parent = Group.Items,
+							Name = "Slider",
+							BorderSizePixel = 0,
+							TextXAlignment = Enum.TextXAlignment.Left,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							TextSize = 14,
+							FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							BackgroundTransparency = 1,
+							Size = UDim2.new(1, 0, 0, 40),
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							Text = Settings.Name
+						})
+
+						Slider.SliderPadding = Utilities.NewObject("UIPadding", {
+							Parent = Slider.Slider,
+							Name = "SliderPadding",
+							PaddingBottom = UDim.new(0, 20)
+						})
+
+						Slider.Background = Utilities.NewObject("Frame", {
+							Parent = Slider.Slider,
+							Name = "Background",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(27, 31, 36),
+							Size = UDim2.new(1, 0, 0, 7),
+							Position = UDim2.new(0, 0, 0, 27),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+
+						Slider.Round = Utilities.NewObject("UICorner", {
+							Parent = Slider.Background,
+							Name = "Round",
+							CornerRadius = UDim.new(0, 200)
+						})
+
+						Slider.Filled = Utilities.NewObject("Frame", {
+							Parent = Slider.Background,
+							Name = "Filled",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(78, 165, 213),
+							Size = UDim2.new(0.5, 0, 1, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+
+						Slider.Round = Utilities.NewObject("UICorner", {
+							Parent = Slider.Filled,
+							Name = "Round",
+							CornerRadius = UDim.new(0, 200)
+						})
+
+						Slider.Draggable = Utilities.NewObject("Frame", {
+							Parent = Slider.Filled,
+							Name = "Draggable",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(78, 165, 213),
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							Size = UDim2.new(0, 11, 0, 11),
+							Position = UDim2.new(1, 0, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+
+						Slider.Round = Utilities.NewObject("UICorner", {
+							Parent = Slider.Draggable,
+							Name = "Round",
+							CornerRadius = UDim.new(0, 200)
+						})
+
+						Slider.UIStroke = Utilities.NewObject("UIStroke", {
+							Parent = Slider.Draggable,
+							Name = "UIStroke",
+							Thickness = 1.5,
+							Color = Color3.fromRGB(18, 20, 24)
+						})
+
+						Slider.Inner = Utilities.NewObject("Frame", {
+							Parent = Slider.Draggable,
+							Name = "Inner",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(18, 20, 24),
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							Size = UDim2.new(0, 5, 0, 5),
+							Position = UDim2.new(0.5, 0, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+						
+						Slider.ValueText = Utilities.NewObject("TextLabel", {
+							Parent = Slider.Slider,
+							BorderSizePixel = 0,
+							TextXAlignment = Enum.TextXAlignment.Right,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							AnchorPoint = Vector2.new(1, 0.5),
+							TextSize = 14,
+							FontFace = Font.new("rbxasset://fonts/families/Roboto.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							BackgroundTransparency = 1,
+							Size = UDim2.new(1, 0, 0, 14),
+							Position = UDim2.new(1, 0, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							Text = "0",
+							Name = "Value"
+						})
+					end
+					
+					Slider.Logic = {
+						Methods = {
+							GetValue = function(self)
+								return Slider.ValueText.Text
+							end,
+							
+							SetValue = function(self, v)
+								if v == nil then
+									local percentage = math.clamp((Variables.Mouse.X - Slider.Background.AbsolutePosition.X) / Slider.Background.AbsoluteSize.X, 0, 1)
+									local value = ((Settings.Max - Settings.Min) * percentage) + Settings.Min
+									value = math.round(value / Settings.Increment) * Settings.Increment
+
+									Slider.ValueText.Text = string.format("%.1f", value)
+									Utilities.Tween(Slider.Filled, {Size = UDim2.fromScale(percentage, 1)}, 0.4, TweenTypes.Drag)
+								else
+									local clampedValue = math.clamp(v, Settings.Min, Settings.Max)
+									clampedValue = math.round(clampedValue / Settings.Increment) * Settings.Increment
+									local percentage = (clampedValue - Settings.Min) / (Settings.Max - Settings.Min)
+
+									Slider.ValueText.Text = string.format("%.1f", clampedValue)
+									Utilities.Tween(Slider.Filled, {Size = UDim2.fromScale(percentage, 1)}, 0.4, TweenTypes.Drag)
+								end
+
+								Settings.Callback(Slider.Logic.Methods:GetValue())
+							end,
+							
+							Initialize = function(self)
+								self:SetValue(Settings.Default)
 							end
-						end,
+						},
 
-						setColor = function(color)
-							if color:IsA("Color3") then
-								ColorPicker.CurrentColor = color
-								ColorPicker.Preview.BackgroundColor3 = color
+						Events = {
+							MouseEnter = function()
+								Slider.Hover = true
+							end,
 
-								local h, s, v = color:ToHSV()
-								ColorPicker.CurrentValue = v
+							MouseLeave = function()
+								Slider.Hover = false
+							end,
 
-								local wheel = ColorPicker.ColorWheel
-								local wheelSize = wheel.AbsoluteSize
-								local wheelCenter = wheelSize / 2
+							InputBegan = function(Input)
+								if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) and Slider.Hover then
+									Variables.Stop = true
+									Slider.MouseDown = true
+									Utilities.Tween(Slider.Slider, {TextColor3 = Color3.fromRGB(255, 255, 255)}, 0.4, TweenTypes.Hover)
 
-								local angle = h * 2 * math.pi
-								local radius = s * (wheelSize.X / 2)
+									if not Slider.Connection then
+										Slider.Connection = Services.RunService.RenderStepped:Connect(function()
+											Slider.Logic.Methods:SetValue()
+										end)
+									end
+								end
+							end,
 
-								local selectX = wheelCenter.X + radius * math.cos(angle)
-								local selectY = wheelCenter.Y + radius * math.sin(angle)
+							InputEnded = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+									Variables.Stop = false
+									Slider.MouseDown = false
 
-								ColorPicker.Select.Position = UDim2.new(0, selectX, 0, selectY)
-
-								if Settings.Callback then
-									Settings.Callback(color)
+									if Slider.Connection then 
+										Slider.Connection:Disconnect() 
+									end
+									Slider.Connection = nil
 								end
 							end
-						end,
+						},
 
-						getColor = function()
-							return ColorPicker.CurrentColor
+						Setup = function()
+							Slider.Slider.MouseEnter:Connect(Slider.Logic.Events.MouseEnter)
+							Slider.Slider.MouseLeave:Connect(Slider.Logic.Events.MouseLeave)
+							Services.UserInputService.InputBegan:Connect(Slider.Logic.Events.InputBegan)
+							Services.UserInputService.InputEnded:Connect(Slider.Logic.Events.InputEnded)
+
+							Slider.Logic.Methods:Initialize()
+							
+							Group.Logic.Methods.UpdateSize()
 						end
-					},
+					}
 
-					Events = {
-						PreviewInputBegan = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringPreview then
-								ColorPicker.Logic.Methods.toggleWindow()
-							end
-						end,
+					Slider.Logic.Setup()
 
-						ColorWheelInputBegan = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringColorWheel then
-								ColorPicker.IsPickingColor = true
-								ColorPicker.Logic.Methods.updateVisuals(Vector2.new(Input.Position.X, Input.Position.Y), true)
-							end
-						end,
+					function Slider:GetValue()
+						Slider.Logic.Methods.GetValue()
+					end
 
-						ColorWheelInputChanged = function(Input)
-							if ColorPicker.IsPickingColor and Input.UserInputType == Enum.UserInputType.MouseMovement and ColorPicker.HoverStates.IsHoveringColorWheel then
-								ColorPicker.Logic.Methods.updateVisuals(Vector2.new(Input.Position.X, Input.Position.Y), true)
-								Variables.StopForce = true
-							end
-						end,
-
-						DarknessInputBegan = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringDarknessSlider then
-								ColorPicker.Logic.IsDraggingDarkness = true
-								ColorPicker.Logic.Methods.updateDarkness(Vector2.new(Input.Position.X, Input.Position.Y))
-							end
-						end,
-
-						DarknessInputChanged = function(Input)
-							if ColorPicker.Logic.IsDraggingDarkness and Input.UserInputType == Enum.UserInputType.MouseMovement and ColorPicker.HoverStates.IsHoveringDarknessSlider then
-								ColorPicker.Logic.Methods.updateDarkness(Vector2.new(Input.Position.X, Input.Position.Y))
-								Variables.StopForce = true
-							end
-						end,
-
-						InputEnded = function(Input)
-							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-								ColorPicker.IsPickingColor = false
-								ColorPicker.Logic.IsDraggingDarkness = false
-								Variables.StopForce = false
-							end
-						end,
-
-						ColorWheelMouseEnter = function()
-							ColorPicker.HoverStates.IsHoveringColorWheel = true
-						end,
-
-						ColorWheelMouseLeave = function()
-							ColorPicker.HoverStates.IsHoveringColorWheel = false
-						end,
-
-						DarknessSliderMouseEnter = function()
-							ColorPicker.HoverStates.IsHoveringDarknessSlider = true
-						end,
-
-						DarknessSliderMouseLeave = function()
-							ColorPicker.HoverStates.IsHoveringDarknessSlider = false
-						end,
-						
-						PreviewMouseEnter = function()
-							ColorPicker.HoverStates.IsHoveringPreview = true
-						end,
-
-						PreviewMouseLeave = function()
-							ColorPicker.HoverStates.IsHoveringPreview = false
-						end
-					},
-
-					Setup = function()
-						Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.PreviewInputBegan)
-						Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.ColorWheelInputBegan)
-						Services.UserInputService.InputChanged:Connect(ColorPicker.Logic.Events.ColorWheelInputChanged)
-						Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.DarknessInputBegan)
-						Services.UserInputService.InputChanged:Connect(ColorPicker.Logic.Events.DarknessInputChanged)
-						Services.UserInputService.InputEnded:Connect(ColorPicker.Logic.Events.InputEnded)
-						
-						ColorPicker.ColorWheel.MouseEnter:Connect(ColorPicker.Logic.Events.ColorWheelMouseEnter)
-						ColorPicker.ColorWheel.MouseLeave:Connect(ColorPicker.Logic.Events.ColorWheelMouseLeave)
-		
-						ColorPicker.Darkness.MouseEnter:Connect(ColorPicker.Logic.Events.DarknessSliderMouseEnter)
-						ColorPicker.Darkness.MouseLeave:Connect(ColorPicker.Logic.Events.DarknessSliderMouseLeave)
-						
-						ColorPicker.Preview.MouseEnter:Connect(ColorPicker.Logic.Events.PreviewMouseEnter)
-						ColorPicker.Preview.MouseLeave:Connect(ColorPicker.Logic.Events.PreviewMouseLeave)
-						
-						ColorPicker.Window.Position = UDim2.new(0.5, - (Interface.MainFrame.Size.X.Offset / 2) - (ColorPicker.Window.Size.X.Offset / 2) - 5, 0.5,  - (Interface.MainFrame.Size.Y.Offset / 2) + (ColorPicker.Window.Size.Y.Offset / 2))
-					end,
-				}
-
-				ColorPicker.Logic.Setup()
-				
-				function ColorPicker:SetColor(Color)
-					ColorPicker.Logic.Methods.setColor(Color)
+					function Slider:SetValue(value)
+						Slider.Logic.Methods.SetValue(self, value)
+					end
+					
+					return Slider
 				end
 				
-				function ColorPicker:GetColor(Color)
-					return ColorPicker.CurrentColor
+				function Group:AddColorPicker(Settings)
+					Settings = Utilities.Settings({
+						Name = "ColorPicker",
+						Default = Color3.fromRGB(255, 0, 0),
+						Callback = function(v)
+							print(v)
+						end    
+					}, Settings or {})
+					
+					local ColorPicker = {
+						IsPickingColor = false,
+						IsWindowOpen = false,
+						CurrentColor = Settings.Default,
+						CurrentValue = 1,
+
+						HoverStates = {
+							IsHoveringColorWheel = false,
+							IsHoveringDarknessSlider = false,
+							IsHoveringPreview = false
+						}
+					}
+					
+					do
+						ColorPicker.ColorPicker = Utilities.NewObject("TextLabel", {
+							Parent = Group.Items,
+							Name = "ColorPicker",
+							BorderSizePixel = 0,
+							TextXAlignment = Enum.TextXAlignment.Left,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							TextSize = 14,
+							FontFace = Font.new("[[rbxasset://fonts/families/Roboto.json]]", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+							TextColor3 = Color3.fromRGB(255, 255, 255),
+							BackgroundTransparency = 1,
+							Size = UDim2.new(1, 0, 0, 20),
+							BorderColor3 = Color3.fromRGB(0, 0, 0),
+							Text = "FOV Circle Color"
+						})
+
+						ColorPicker.Color = Utilities.NewObject("Frame", {
+							Parent = ColorPicker.ColorPicker,
+							Name = "Color",
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							AnchorPoint = Vector2.new(1, 0),
+							Size = UDim2.new(0, 20, 0, 20),
+							Position = UDim2.new(1, 0, 0, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+
+						ColorPicker.ColorCorner = Utilities.NewObject("UICorner", {
+							Parent = ColorPicker.Color,
+							Name = "ColorCorner",
+							CornerRadius = UDim.new(0, 6)
+						})
+						
+						ColorPicker.Window = Utilities.NewObject("Frame", {
+							Parent = Interface.Interface,
+							Name = "ColorPicker",
+							BorderSizePixel = 0,
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							BackgroundColor3 = Color3.fromRGB(18, 20, 24),
+							Size = UDim2.new(0, 143, 0, 120),
+							Position = UDim2.new(0, -148, 0, 0),
+							BorderColor3 = Color3.fromRGB(0, 0, 0)
+						})
+
+						ColorPicker.WindowCorner = Utilities.NewObject("UICorner", {
+							Parent = ColorPicker.Window,
+							Name = "WindowCorner",
+							CornerRadius = UDim.new(0, 10)
+						})
+
+						ColorPicker.WindowPadding = Utilities.NewObject("UIPadding", {
+							Parent = ColorPicker.Window,
+							Name = "WindowPadding",
+							PaddingTop = UDim.new(0, 5),
+							PaddingRight = UDim.new(0, 5),
+							PaddingLeft = UDim.new(0, 5),
+							PaddingBottom = UDim.new(0, 5)
+						})
+
+						ColorPicker.Wheel = Utilities.NewObject("Frame", {
+							Parent = ColorPicker.Window,
+							Name = "Wheel",
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							Size = UDim2.new(0, 110, 1, 0),
+							BorderColor3 = Color3.fromRGB(28, 43, 54),
+							BackgroundTransparency = 1
+						})
+
+						ColorPicker.ColorWheel = Utilities.NewObject("ImageLabel", {
+							Parent = ColorPicker.Window,
+							Name = "ColorWheel",
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							Image = "rbxassetid://72583388086348",
+							Size = UDim2.new(0, 88, 0, 88),
+							BorderColor3 = Color3.fromRGB(28, 43, 54),
+							BackgroundTransparency = 1,
+							Position = UDim2.new(0, 11, 0, 11)
+						})
+
+						ColorPicker.Select = Utilities.NewObject("Frame", {
+							Parent = ColorPicker.ColorWheel,
+							Name = "Select",
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							Size = UDim2.new(0.06, 0, 0.06, 0),
+							Position = UDim2.new(0.5, 0, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(28, 43, 54),
+							BackgroundTransparency = 1
+						})
+
+						ColorPicker.SelectCorner = Utilities.NewObject("UICorner", {
+							Parent = ColorPicker.Select,
+							Name = "SelectCorner",
+							CornerRadius = UDim.new(0.5, 0)
+						})
+
+						ColorPicker.SelectStroke = Utilities.NewObject("UIStroke", {
+							Parent = ColorPicker.Select,
+							Name = "SelectStroke",
+							Thickness = 2
+						})
+
+						ColorPicker.Darkness = Utilities.NewObject("Frame", {
+							Parent = ColorPicker.Window,
+							Name = "Darkness",
+							Active = true,
+							BorderSizePixel = 0,
+							BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+							AnchorPoint = Vector2.new(1, 0.5),
+							Size = UDim2.new(0, 20, 1, 0),
+							Position = UDim2.new(1, 0, 0.5, 0),
+							BorderColor3 = Color3.fromRGB(28, 43, 54)
+						})
+
+						ColorPicker.DarknessGradient = Utilities.NewObject("UIGradient", {
+							Parent = ColorPicker.Darkness,
+							Name = "DarknessGradient",
+							Rotation = 90,
+							Color = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(255, 255, 255)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(0, 0, 0))}
+						})
+
+						ColorPicker.DarknessCorner = Utilities.NewObject("UICorner", {
+							Parent = ColorPicker.Darkness,
+							Name = "DarknessCorner",
+							CornerRadius = UDim.new(0, 8)
+						})
+					end
+
+					ColorPicker.Logic = {
+						Methods = {
+							ToggleWindow = function()
+								ColorPicker.IsWindowOpen = not ColorPicker.IsWindowOpen
+								ColorPicker.Window.Visible = ColorPicker.IsWindowOpen
+							end,
+
+							GetColorAtPosition = function(MousePosition)
+								local Wheel = ColorPicker.ColorWheel
+								local WheelAbsPos = Wheel.AbsolutePosition
+								local WheelAbsSize = Wheel.AbsoluteSize
+								local WheelRadius = (WheelAbsSize.X / 2)
+								local WheelCenter = WheelAbsPos + WheelAbsSize / 2
+
+								local Delta = MousePosition - WheelCenter
+								local Radius = Delta.Magnitude
+								local NormalizedRadius = math.min(Radius / WheelRadius, 1)
+
+								local Angle = math.atan2(Delta.Y, Delta.X)
+								local Hue = ((Angle + math.pi) / (2 * math.pi)) % 1
+								local Saturation = NormalizedRadius
+
+								return Hue, Saturation
+							end,
+
+							UpdateVisuals = function(MousePosition, IsWheel)
+								if IsWheel then
+									local H, S = ColorPicker.Logic.Methods.GetColorAtPosition(MousePosition)
+									local V = ColorPicker.CurrentValue
+
+									local Wheel = ColorPicker.ColorWheel
+									local RelativePos = MousePosition - Wheel.AbsolutePosition
+									local WheelSize = Wheel.AbsoluteSize
+
+									local CenterX, CenterY = WheelSize.X / 2, WheelSize.Y / 2
+									local Angle = math.atan2(RelativePos.Y - CenterY, RelativePos.X - CenterX)
+									local Radius = math.min((RelativePos - Vector2.new(CenterX, CenterY)).Magnitude, CenterX)
+
+									local ClampedX = CenterX + Radius * math.cos(Angle)
+									local ClampedY = CenterY + Radius * math.sin(Angle)
+
+									ColorPicker.Select.Position = UDim2.new(0, ClampedX, 0, ClampedY)
+
+									local NewColor = Color3.fromHSV(H, S, V)
+									ColorPicker.Color.BackgroundColor3 = NewColor
+									ColorPicker.CurrentColor = NewColor
+
+									if Settings.Callback then
+										Settings.Callback(NewColor)
+									end
+								end
+							end,
+
+							UpdateDarkness = function(MousePosition)
+								local Darkness = ColorPicker.Darkness
+								local DarknessAbsPos = Darkness.AbsolutePosition
+								local DarknessAbsSize = Darkness.AbsoluteSize
+
+								local Value = math.clamp((MousePosition.Y - DarknessAbsPos.Y) / DarknessAbsSize.Y, 0, 1)
+								ColorPicker.CurrentValue = 1 - Value
+
+								local H, S = ColorPicker.Logic.Methods.GetColorAtPosition(ColorPicker.Select.AbsolutePosition + ColorPicker.Select.AbsoluteSize / 2)
+								local NewColor = Color3.fromHSV(H, S, ColorPicker.CurrentValue)
+
+								ColorPicker.Color.BackgroundColor3 = NewColor
+								ColorPicker.CurrentColor = NewColor
+
+								if Settings.Callback then
+									Settings.Callback(NewColor)
+								end
+							end,
+
+							SetColor = function(Color)
+								if Color:IsA("Color3") then
+									ColorPicker.CurrentColor = Color
+									ColorPicker.Color.BackgroundColor3 = Color
+
+									local H, S, V = Color:ToHSV()
+									ColorPicker.CurrentValue = V
+
+									local Wheel = ColorPicker.ColorWheel
+									local WheelSize = Wheel.AbsoluteSize
+									local WheelCenter = WheelSize / 2
+
+									local Angle = H * 2 * math.pi
+									local Radius = S * (WheelSize.X / 2)
+
+									local SelectX = WheelCenter.X + Radius * math.cos(Angle)
+									local SelectY = WheelCenter.Y + Radius * math.sin(Angle)
+
+									ColorPicker.Select.Position = UDim2.new(0, SelectX, 0, SelectY)
+
+									if Settings.Callback then
+										Settings.Callback(Color)
+									end
+								end
+							end,
+
+							GetColor = function()
+								return ColorPicker.CurrentColor
+							end
+						},
+
+						Events = {
+							PreviewInputBegan = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringPreview then
+									ColorPicker.Logic.Methods.ToggleWindow()
+								end
+							end,
+
+							ColorWheelInputBegan = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringColorWheel then
+									ColorPicker.IsPickingColor = true
+									ColorPicker.Logic.Methods.UpdateVisuals(Vector2.new(Input.Position.X, Input.Position.Y), true)
+								end
+							end,
+
+							ColorWheelInputChanged = function(Input)
+								if ColorPicker.IsPickingColor and Input.UserInputType == Enum.UserInputType.MouseMovement and ColorPicker.HoverStates.IsHoveringColorWheel then
+									ColorPicker.Logic.Methods.UpdateVisuals(Vector2.new(Input.Position.X, Input.Position.Y), true)
+									Variables.StopForce = true
+								end
+							end,
+
+							DarknessInputBegan = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 and ColorPicker.HoverStates.IsHoveringDarknessSlider then
+									ColorPicker.Logic.IsDraggingDarkness = true
+									ColorPicker.Logic.Methods.UpdateDarkness(Vector2.new(Input.Position.X, Input.Position.Y))
+								end
+							end,
+
+							DarknessInputChanged = function(Input)
+								if ColorPicker.Logic.IsDraggingDarkness and Input.UserInputType == Enum.UserInputType.MouseMovement and ColorPicker.HoverStates.IsHoveringDarknessSlider then
+									ColorPicker.Logic.Methods.UpdateDarkness(Vector2.new(Input.Position.X, Input.Position.Y))
+									Variables.StopForce = true
+								end
+							end,
+
+							InputEnded = function(Input)
+								if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+									ColorPicker.IsPickingColor = false
+									ColorPicker.Logic.IsDraggingDarkness = false
+									Variables.StopForce = false
+								end
+							end,
+
+							ColorWheelMouseEnter = function()
+								ColorPicker.HoverStates.IsHoveringColorWheel = true
+							end,
+
+							ColorWheelMouseLeave = function()
+								ColorPicker.HoverStates.IsHoveringColorWheel = false
+							end,
+
+							DarknessSliderMouseEnter = function()
+								ColorPicker.HoverStates.IsHoveringDarknessSlider = true
+							end,
+
+							DarknessSliderMouseLeave = function()
+								ColorPicker.HoverStates.IsHoveringDarknessSlider = false
+							end,
+
+							PreviewMouseEnter = function()
+								ColorPicker.HoverStates.IsHoveringPreview = true
+							end,
+
+							PreviewMouseLeave = function()
+								ColorPicker.HoverStates.IsHoveringPreview = false
+							end
+						},
+
+						Setup = function()
+							Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.PreviewInputBegan)
+							Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.ColorWheelInputBegan)
+							Services.UserInputService.InputChanged:Connect(ColorPicker.Logic.Events.ColorWheelInputChanged)
+							Services.UserInputService.InputBegan:Connect(ColorPicker.Logic.Events.DarknessInputBegan)
+							Services.UserInputService.InputChanged:Connect(ColorPicker.Logic.Events.DarknessInputChanged)
+							Services.UserInputService.InputEnded:Connect(ColorPicker.Logic.Events.InputEnded)
+
+							ColorPicker.ColorWheel.MouseEnter:Connect(ColorPicker.Logic.Events.ColorWheelMouseEnter)
+							ColorPicker.ColorWheel.MouseLeave:Connect(ColorPicker.Logic.Events.ColorWheelMouseLeave)
+
+							ColorPicker.Darkness.MouseEnter:Connect(ColorPicker.Logic.Events.DarknessSliderMouseEnter)
+							ColorPicker.Darkness.MouseLeave:Connect(ColorPicker.Logic.Events.DarknessSliderMouseLeave)
+
+							ColorPicker.Color.MouseEnter:Connect(ColorPicker.Logic.Events.PreviewMouseEnter)
+							ColorPicker.Color.MouseLeave:Connect(ColorPicker.Logic.Events.PreviewMouseLeave)
+
+							ColorPicker.Window.Position = UDim2.new(0.5, -(Interface.Interface.Size.X.Offset / 2) - (ColorPicker.Window.Size.X.Offset / 2) - 5, 0.5, -(Interface.Interface.Size.Y.Offset / 2) + (ColorPicker.Window.Size.Y.Offset / 2))
+							
+							Group.Logic.Methods.UpdateSize()
+						end,
+					}
+
+					ColorPicker.Logic.Setup()
+
+					function ColorPicker:SetColor(Color)
+						ColorPicker.Logic.Methods.setColor(Color)
+					end
+
+					function ColorPicker:GetColor(Color)
+						return ColorPicker.CurrentColor
+					end
+
+					Utilities.Dragify(ColorPicker.Window)
+					
+					return ColorPicker
 				end
-				
-				Utilities.Dragify(ColorPicker.Window)
-				
-				return ColorPicker
+
+				Group.Logic.Setup()
+
+				return Group
 			end
-			
+
 			return Section
 		end
-		
+
 		return Tab
 	end
-	
-	Utilities.Dragify(Interface.MainFrame)
-	Utilities.SetReSizeable(Interface.MainFrame, Interface.Resize, Vector2.new(584 / 1.2, 396 / 1.2), Vector2.new(584, 396))
-	
+
+	Utilities.Dragify(Interface.Interface)
+	Utilities.SetReSizeable(Interface.Interface, Interface.Resize, Vector2.new(600 / 1.2, 433 / 1.2), Vector2.new(600, 433))
+
 	return Interface
 end
 
 function Deadzone:Init()
 	coroutine.wrap(function()
 		while true do
-			if Deadzone and Deadzone.gui and Deadzone.gui.DeadzoneXYZ then
-				Deadzone.gui.DeadzoneXYZ.Name = G_String
+			if Deadzone and Deadzone.Deadzone then
+				Deadzone.Deadzone.Name = G_String
 			else
 				error("Error: Deadzone.Gui.GUI not found")
 			end
 			task.wait()
 		end
 	end)()
-	
-	Interface.MainFrame.Parent = Deadzone.gui.DeadzoneXYZ
 end
 
 return Deadzone
